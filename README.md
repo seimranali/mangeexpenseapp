@@ -130,6 +130,34 @@ workflows:
 Change `BUNDLE_ID` in `codemagic.yaml` first if you rename the app's bundle
 identifier (see the note below).
 
+## 4. Install the build on your iPhone (TestFlight)
+
+`ios-release` uploads every build straight to TestFlight, which is the
+normal way to run your own signed builds on a real device without a Mac or
+a USB cable.
+
+1. In **App Store Connect → your app → TestFlight**, create an **Internal
+   Testing** group named exactly `Internal Testers` (matching
+   `beta_groups` in `codemagic.yaml`), and add your own Apple ID to it.
+   Internal testing needs no Apple review and testers see new builds within
+   minutes of upload.
+2. Trigger the `ios-release` workflow in Codemagic (push to `main`, or run
+   it manually from the dashboard). It builds, signs, and uploads to
+   TestFlight — watch the build log for the upload step to confirm success.
+3. Processing in App Store Connect usually takes 5–15 minutes after upload
+   (shows as "Processing" on the TestFlight tab, then flips to ready).
+4. On your iPhone, install **TestFlight** from the App Store, sign in with
+   the same Apple ID you added as a tester, and open it — Household Ledger
+   should appear there. Tap **Install**.
+5. Every future push to `main` produces a new build number automatically
+   (via `app-store-connect get-latest-testflight-build-number` in the
+   build script) and lands in the same TestFlight group, so reinstalling is
+   just opening TestFlight and tapping **Update**.
+
+TestFlight builds expire after 90 days, so you'll need a fresh build/upload
+periodically even without code changes — pushing an empty commit to `main`
+is enough to trigger one.
+
 ## Notes
 
 - `android/app/build.gradle.kts` sets `minSdk = 23` and
